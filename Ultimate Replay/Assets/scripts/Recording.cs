@@ -45,7 +45,7 @@ public class Recording : MonoBehaviour
         {
             RecordFrame();
         }
-      
+
         else if (RecordPlayer.replay_state != Replay_State.none)
         {
             PlayFrame();
@@ -124,40 +124,41 @@ public class Recording : MonoBehaviour
         }
         else
         {
-            Frame frame = Frames[gotoFrame];
-            transform.position = frame.position;
-            transform.rotation = frame.rotation;
-            transform.localScale = frame.scale;
-            if (animator != null)
+            if (RecordPlayer.SliderControl == true)
             {
-                if (RecordPlayer.SliderControl == false && RecordPlayer.replay_state == Replay_State.pause)
+                SetgotoFrame();
+                UpdateFrame(gotoFrame);
+            }
+            if (RecordPlayer.replay_state == Replay_State.pause)
+            {
+                if (animator != null)
                 {
                     animator.speed = 0;
                 }
-                else
+                if (RecordPlayer.SliderControl == true)
                 {
-                    animator.speed = 1;
+                    SetPlayFrame();
                 }
-                foreach (AnimationParameter parameter in frame.AnimationParameters)
-                {
-                    if (parameter.Parameter_Type == AnimatorControllerParameterType.Bool)
-                    {
-                        animator.SetBool(parameter.Parameter_Name, parameter.Bool_Parameter);
-                    }
-                    else if (parameter.Parameter_Type == AnimatorControllerParameterType.Int)
-                    {
-                        animator.SetInteger(parameter.Parameter_Name, parameter.Int_Parameter);
-                    }
-                    else if (parameter.Parameter_Type == AnimatorControllerParameterType.Float)
-                    {
-                        animator.SetFloat(parameter.Parameter_Name, parameter.Float_Parameter);
-                    }
-                }
-                animator.Play(frame.AnimatorStateNameHash);
-                animator.Play(0, 0, frame.normalisedTime);
+                
             }
-            SetgotoFrame();
-            UpdateFrame(gotoFrame);
+            else if (RecordPlayer.replay_state == Replay_State.play)
+            {
+                if (animator != null)
+                {
+                    if (RecordPlayer.SliderControl != true)
+                    {
+                        animator.speed = 1;
+                    }
+                    else
+                    {
+                        animator.speed = 0;
+                    }
+                }
+                SetPlayFrame();
+            }
+
+
+
         }
     }
 
@@ -191,7 +192,7 @@ public class Recording : MonoBehaviour
                     gotoFrame--;
                 }
             }
-            
+
         }
         else
         {
@@ -199,6 +200,37 @@ public class Recording : MonoBehaviour
         }
     }
 
+    void SetPlayFrame()
+    {
+        Frame frame = Frames[gotoFrame];
+        transform.position = frame.position;
+        transform.rotation = frame.rotation;
+        transform.localScale = frame.scale;
+        if (animator != null)
+        {
+            foreach (AnimationParameter parameter in frame.AnimationParameters)
+            {
+                if (parameter.Parameter_Type == AnimatorControllerParameterType.Bool)
+                {
+                    animator.SetBool(parameter.Parameter_Name, parameter.Bool_Parameter);
+                }
+                else if (parameter.Parameter_Type == AnimatorControllerParameterType.Int)
+                {
+                    animator.SetInteger(parameter.Parameter_Name, parameter.Int_Parameter);
+                }
+                else if (parameter.Parameter_Type == AnimatorControllerParameterType.Float)
+                {
+                    animator.SetFloat(parameter.Parameter_Name, parameter.Float_Parameter);
+                }
+            }
+            animator.Play(frame.AnimatorStateNameHash, 0, frame.normalisedTime);
+        }
+        if (RecordPlayer.SliderControl == false)
+        {
+            SetgotoFrame();
+            UpdateFrame(gotoFrame);
+        }
+    }
     void ChangeGoToFrameForReverseTime()
     {
         if (RecordPlayer.TimeMovesForward == true && gotoFrame == length - 1)

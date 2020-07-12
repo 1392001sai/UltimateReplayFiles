@@ -8,6 +8,7 @@ public class PlayblackSliderScript : MonoBehaviour
     float fillAmount;
     RecordPlayer recordPlayer;
     Slider slider;
+    public static bool SliderValueChanging = false;
 
     private void Start()
     {
@@ -46,5 +47,12 @@ public class PlayblackSliderScript : MonoBehaviour
     void UpdateSliderFrame()
     {
         recordPlayer.sliderFrame = Mathf.RoundToInt(slider.value * recordPlayer.length);
+    }
+
+    public void OnChangeValue()
+    {
+
+        SliderValueChanging = true;
+
     }
 }
